@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<!--
+Created using JS Bin
+http://jsbin.com
+
+Copyright (c) 2015 by cvuorinen (http://jsbin.com/fikesa/2/edit)
+
+Released under the MIT license: http://jsbin.mit-license.org
+-->
+<meta name="robots" content="noindex">
+<html>
+<head>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+<style id="jsbin-css">
+
+input, .output { 
+  position: absolute; top: 0;
+  width: 50px; height: 18px;
+  overflow: hidden; padding: 3px 0 0 8px;
+  background: white; border: none; outline: none;
+}
+.output { pointer-events: none; }
+input:focus + .output { display: none; }
+td { border: 1px solid #eee;
+  position: relative;
+  width: 60px; height: 22px; }
+
+body, input { font-family: sans-serif; font-size: 13px; }
+table { border-collapse: collapse; }
+th {
+  text-align: center;
+  background: #eee;
+  padding: 0 1em;
+}
+</style>
+</head>
+<body ng-app="app">
+<table ng-controller="ExcelCtrl">
+  <tr><th></th>
+    <th ng-repeat="col in columns">{{col}}</th>
+  </tr>
+  <tr ng-repeat="row in rows">
+    <th>{{row}}</th>
+    <td ng-repeat="col in columns">
+      <input ng-model="cells[col+row]" />
+      <div class="output">
+        {{compute(col+row)}}
+      </div>
+    </td>
+  </tr>
+</table>
+<script id="jsbin-javascript">
+angular.module('app', [])
+.controller('ExcelCtrl', function($scope, $parse){
+  $scope.columns = ['A', 'B', 'C'];
+  $scope.rows = [1, 2, 3, 4];
+  $scope.cells = {};
+  
+  $scope.compute = function(cell) {
+    return $parse(
+      process(''+$scope.cells[cell])
+    )($scope);
+  };
+  function process(exp) {
+    return exp.replace(/[A-Z]\d+/g, function(ref) {
+      return 'compute("' + ref + '")';
+    });
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,993 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>AngularJS Internals</title>
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+        <link rel="stylesheet" href="css/reveal.css">
+        <link rel="stylesheet" href="css/theme/sky.css" id="theme">
+
+        <!-- Custom styles -->
+        <link rel="stylesheet" href="css/custom-styles.css">
+
+        <!-- Code syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/github-gist.css">
+        
+        <!-- Font Awesome -->
+        <link rel="stylesheet" href="lib/font-awesome/css/font-awesome.min.css">
+
+        <!-- Printing and PDF exports -->
+        <script>
+            var link = document.createElement( 'link' );
+            link.rel = 'stylesheet';
+            link.type = 'text/css';
+            link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+            document.getElementsByTagName( 'head' )[0].appendChild( link );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+    </head>
+
+    <body ng-app="AngularJsInternals">
+
+        <div class="reveal">
+            <header class="photo-credits backdrop"></header>
+
+
+            <div class="slides">
+                <section>
+                    <img src="img/angular-logo.png" alt="">
+                    <h2>AngularJS Internals</h2>
+                    <h4>&ndash; A look behind all the magic</h4>
+                    <br>
+                    <p>
+                        by <a href="http://cvuorinen.net">Carl Vuorinen</a> /
+                        <a href="http://twitter.com/cvuorinen">@cvuorinen</a>
+                    </p>
+                </section>
+
+                <section>
+                    <h4>Carl Vuorinen</h4>
+                    <div style="width:600px; margin: 0 auto;">
+                        <a href="http://w3.fi" target="_blank">
+                            <img src="img/w3-logo.png" alt="" class="pull-left">
+                        </a>
+                        <div style="text-align:left;float:right;margin-top:30px;">
+                            <h5>
+                                <i class="fa fa-lg fa-twitter" style="width:1.5em;"></i>
+                                <a href="http://twitter.com/cvuorinen" target="_blank">@cvuorinen</a>
+                            </h5>
+                            <h5>
+                                <i class="fa fa-lg fa-github" style="width:1.5em;"></i>
+                                <a href="https://github.com/cvuorinen" target="_blank">cvuorinen</a>
+                            </h5>
+                            <h5>
+                                <i class="fa fa-lg fa-rss" style="width:1.5em;"></i>
+                                <a href="http://cvuorinen.net" target="_blank">cvuorinen.net</a>
+                            </h5>
+                        </div>
+                    </div>
+                </section>
+
+                <section>
+                    <h4>
+                        <a href="https://angularjs.org/" target="_blank">
+                            <img src="img/AngularJS-large.png" alt="">
+                        </a>
+                    </h4>
+                    <p style="clear:both;">
+                        HTML enhanced for web apps!
+                    </p>
+                </section>
+                
+                <section eval>
+                    <div class="cols">
+                        <div class="col">
+                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
+<h4>Hello {{name}}!</h4>
+<input ng-model="name">
+                            </code></pre>
+                        </div>
+                        <div class="col">
+                            <div class="output" eval-output></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
+                    </div>
+                </section>
+                
+                <section eval>
+                    <div class="cols">
+                        <div class="col wide">
+                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
+<h4>Todo:</h4>
+<ul ng-init="list=[];">
+    &lt;li ng-repeat="todo in list"
+        ng-click="list.splice($index, 1)"&gt;
+        {{todo}}
+    &lt;/li&gt;
+</ul>
+<form ng-submit="list.push(todo); todo='';">
+    <input ng-model="todo" placeholder="Add">
+</form>
+                            </code></pre>
+                        </div>
+                        <div class="col narrow">
+                            <div class="output" eval-output></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
+                    </div>
+                </section>
+                
+                <section data-background="img/blueprint.jpg"
+                         data-state="show-photo-credits"
+                         data-photo-credits="Codex41 <a href='https://www.flickr.com/photos/codex41/9728419226/' target='_blank'>https://www.flickr.com/photos/codex41/9728419226/</a>">
+                    <h1 class="backdrop">Scope</h1>
+                </section>
+                
+                <section>
+                    <h3>$scope == POJO</h3>
+                    <br>
+                    <p>Plain Old Javascript Object</p>
+                </section>
+                
+                <section>
+                    <h3>
+                        <em>$watch</em> &amp; <strong>$digest</strong>
+                    </h3>
+                </section>
+                
+                <section>
+                    <pre class="pseudo" style="display:inline;font-size:25px;">&nbsp;red border&nbsp;</pre>
+                        == "pseudo" code
+                    <pre class="pseudo"><code data-trim class="javascript">
+$scope.$watch = function(watchFunc, listenerFunc) {
+    this.$$watchers.push({
+        watchFunc: watchFunc,
+        listenerFunc: listenerFunc,
+        lastValue: initWatchValue
+    });
+    
+    // initialize watch with a "value" that's guaranteed to be unique
+    function initWatchValue() { }
+};
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <pre class="pseudo"><code data-trim class="javascript">
+$scope.$digest = function() {
+    var dirty = true;
+    var scope = this;
+    
+    while (dirty) {
+        dirty = false; // reset from last iteration
+        
+        scope.$$watchers.map(function (watcher) {
+            // execute watch function to get new value
+            newValue = watcher.watchFunc(scope);
+            
+            // check if value has changed from last cycle
+            if (newValue !== watcher.lastValue) {
+                dirty = true;
+                
+                // execute listener and store new last value
+                watcher.listenerFunc(newValue, watcher.lastValue, scope);
+                watcher.lastValue = newValue;
+            }
+        });
+    }
+};
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <a class="jsbin-embed" href="http://jsbin.com/xetihu/embed?html,js">JS Bin on jsbin.com</a><script src="https://static.jsbin.com/js/embed.min.js?3.34.1"></script>
+                </section>
+                
+                <section>
+                    <h2>Scope Inheritance</h2>
+                </section>
+                
+                <section>
+                    <h3>Javascript <em>prototypical</em> inheritance</h3>
+                </section>
+                
+                <section>
+                    <div class="cols">
+                        <div class="col">
+                            <pre><code data-trim class="javascript">
+function Vehicle() {}
+Vehicle.prototype.speed = 4;
+Vehicle.prototype.go = function() {
+  return 'Vr' + 'o'.repeat(this.speed)
+       + 'm!';
+};
+
+function Truck() {}
+Truck.prototype = Vehicle.prototype;
+
+var scania = new Truck();
+scania.go();    // Vroooom!
+                            </code></pre>
+                        </div>
+                        <div class="col fragment">
+                            <pre><code data-trim class="javascript">
+function Car(speed) {
+    this.speed = speed;
+}
+Car.prototype = Object.create(
+    Vehicle.prototype
+);
+Car.prototype.constructor = Car;
+
+var honda = new Car(6);
+honda.go();     // Vroooooom!
+
+var tesla = new Car(12);
+tesla.go();     // Vroooooooooooom!
+                            </code></pre>
+                        </div>
+                    </div>
+                </section>
+                
+                <section>
+                    <img src="img/js-inheritance.png" alt="">
+                </section>
+                
+                <section>
+                    <h3>Scope Hierarchy</h3>
+                    <pre class="pseudo"><code data-trim class="javascript">
+$scope.$new = function() {
+    var ChildScope = function() {};
+    ChildScope.prototype = this;
+
+    return new ChildScope();
+};
+                    </code></pre>
+                </section>
+                
+                <section eval>
+                    <div class="cols">
+                        <div class="col wide">
+                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
+<label>
+  <input type="checkbox" ng-model="show">
+  Show me the Money!
+</label><br>
+<label ng-if="show">
+  <input type="checkbox" ng-model="showMore">
+  SHOW MOAR MONEY!!1
+</label>
+<div ng-if="show">
+  <img src="img/money.jpg"><br>
+  <img ng-if="showMore"
+       src="img/mo-money.jpg">
+</div>
+                            </code></pre>
+                        </div>
+                        <div class="col narrow">
+                            <div class="output" eval-output></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
+                    </div>
+                    <aside class="notes">
+                        TODO: better way to visualize the scopes?
+                    </aside>
+                </section>
+                
+                <section data-transition="fade">
+                    <img src="img/scope-inheritance.png" alt="">
+                </section>
+                
+                <section data-transition="fade">
+                    <img src="img/scope-inheritance2.png" alt="">
+                </section>
+
+                <section>
+                    <blockquote>
+                        Whenever you use ngModel, there’s got to be a dot in there
+                        somewhere. If you don’t have a dot, you’re doing it wrong.
+                        <cite><b>Miško Hevery</b> (creator of AngularJS)</cite>
+                    </blockquote>
+                </section>
+                
+                <section>
+                    <h3>Controller As Syntax</h3>
+                    <pre><code data-trim class="javascript">
+angular.module('app')
+.controller("SomeController", function() {
+    this.value = "Hello!";
+});
+                    </code></pre>
+                    <pre><code data-trim class="xml" ng-non-bindable>
+<div ng-controller="SomeController as some">
+    {{ some.value }}
+</div>
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <h3>Controller As Syntax</h3>
+                    <pre><code data-trim class="javascript">
+angular.module('app')
+.controller("SomeController", function() {
+    var vm = this;
+    vm.value = "Hello!";
+    vm.sayHello = function() {
+        alert(vm.value);
+    }
+});
+                    </code></pre>
+                    <pre><code data-trim class="xml" ng-non-bindable>
+<div ng-controller="SomeController as vm">
+    <input type="text" ng-model="vm.value">
+    <button ng-click="vm.sayHello()">Click here</button>
+</div>
+                    </code></pre>
+                </section>
+                
+                <section data-background="img/cat-expressions.jpg"
+                         data-state="show-photo-credits"
+                         data-photo-credits="Sergiu Bacioiu <a href='https://www.flickr.com/photos/sergiu_bacioiu/' target='_blank'>https://www.flickr.com/photos/sergiu_bacioiu/</a>">
+                    <h1 class="backdrop">Expressions</h1>
+                </section>
+                
+                <section>
+                    <pre><code data-trim class="xml" ng-non-bindable contenteditable>
+<div ng-init="jsFrameworks = npm.search({tags: ['framework']})">
+    <div ng-if="(lastWeekCount = (jsFrameworks | since:lastWeek).length) > 10">
+        <h3>Holy smokes, Batman!</h3>
+        <p>New JS frameworks since last week: {{ lastWeekCount }}
+            <small>
+                +{{ (lastWeekCount / jsFrameworks.length * 100) | number:1 }}%
+            </small>
+        </p>
+        <p>Time to <button ng-click="startOver()">Clear the Decks!</button></p>
+    </div>
+</div>
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <h3>$parse</h3>
+                    <p class="fragment"> is kinda like</p>
+                    <pre class="pseudo fragment"><code data-trim class="javascript">
+$parse = function(expr) {
+    return function(scope) {
+        with (scope) {
+            return eval(expr);
+        }
+    }
+}
+                    </code></pre>
+                    <p class="fragment">... except it's really not</p>
+                </section>
+                
+                <section>
+                    <h3>DIY Spreadsheet</h3>
+                    <a class="jsbin-embed" href="http://jsbin.com/fikesa/embed?html,css">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?3.34.2"></script>
+                </section>
+                
+                <section>
+                    <h3 ng-non-bindable>{{ interpolation }}</h3>
+                    <ol style="line-height:2;">
+                        <li class="fragment" ng-non-bindable>
+                            find <em>{{</em> and <em>}}</em> characters in DOM text nodes
+                        </li>
+                        <li class="fragment"><strong>$parse</strong> found expressions</li>
+                        <li class="fragment">create a <em>$watch</em> with the parsed expression</li>
+                        <li class="fragment">listener <strong>updates DOM</strong> node text</li>
+                    </ol>
+                    <br><br>
+                    <div class="fragment">+ same thing for attributes</div>
+                </section>
+                
+                <section data-background="img/transformers.jpg"
+                         data-state="show-photo-credits"
+                         data-photo-credits="Rodimuspower Master of Transformers <a href='https://www.flickr.com/photos/rodimuspower/4669527007/' target='_blank'>https://www.flickr.com/photos/rodimuspower/4669527007/</a>">
+                    <h1 class="backdrop2">Directives</h1>
+                </section>
+                
+                <section eval>
+                    <div class="cols">
+                        <div class="col auto-size wide">
+                            <pre><code contenteditable data-trim class="javascript">
+angular.module('app')
+.directive('greetButton', function () {
+  return {
+    link: function (scope, element, attrs) {
+      $(element).click(function () {
+        window.alert('ohai!');
+      });
+    }
+  };
+});
+                    </code></pre>
+                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
+<div>
+    &lt;button greet-button&gt;Click here!&lt;/button&gt;
+</div>
+                            </code></pre>
+                        </div>
+                        <div class="col narrow">
+                            <div class="output" eval-output></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
+                    </div>
+                </section>
+                
+                <section eval>
+                    <div class="cols">
+                        <div class="col auto-size wide">
+                            <pre><code contenteditable data-trim class="javascript">
+angular.module('app')
+.directive('greetings', function () {
+  return {
+    link: function (scope, element, attrs) {
+      $(element).click(function () {
+        window.alert(scope.my.greeting);
+      });
+    }
+  };
+});
+                    </code></pre>
+                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
+<div>
+    <input ng-model="my.greeting"><br>
+    &lt;button greetings&gt;
+        Click here!
+    &lt;/button&gt;
+</div>
+                            </code></pre>
+                        </div>
+                        <div class="col narrow">
+                            <div class="output" eval-output></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
+                    </div>
+                </section>
+                
+                <section eval>
+                    <div class="cols">
+                        <div class="col auto-size wide">
+                            <pre><code contenteditable data-trim ng-non-bindable class="javascript">
+angular.module('app')
+.directive('greetingButton', function () {
+  return {
+    scope: {
+      greeting: '='
+    },
+    template: '<button ng-click="click()">'
+            + '{{label}}</button>',
+    link: function (scope, element, attrs) {
+      scope.label = attrs.label;
+      scope.click = function () {
+        window.alert(scope.greeting);
+      };
+    }
+  };
+});
+                            </code></pre>
+                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
+<div>
+    <input ng-model="my.greeting"><br>
+    &lt;greeting-button label="Click here"
+                     greeting="my.greeting"&gt;
+    &lt;/greeting-button&gt;
+</div>
+                            </code></pre>
+                        </div>
+                        <div class="col narrow">
+                            <div class="output" eval-output></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
+                    </div>
+                </section>
+                
+                <section>
+                    <h3>Compiling &amp; Linking</h3>
+                    <br><br>
+                    <pre><code class="xml code" contenteditable data-trim ng-non-bindable
+                               style="line-height:2 !important;">
+<div ng-init="arr=['Foo','Bar']">
+    <div ng-repeat="item in arr">
+        <button ng-click="submit(item)">
+                {{ item }}
+        </button>
+    </div>
+</div>
+                    </code></pre>
+                    <div class="fragment callout position-top"
+                         data-callout="span.hljs-attribute:contains('ng-init')"
+                         data-callout-offset-left="20">
+                        <div class="callout-text">1. compile</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                    <div class="fragment callout position-top"
+                         data-callout="span.hljs-attribute:contains('ng-repeat')"
+                         data-callout-offset-left="30">
+                        <div class="callout-text">2. compile</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                    <div class="fragment callout position-top"
+                         data-callout="span.hljs-attribute:contains('ng-click')"
+                         data-callout-offset-left="20">
+                        <div class="callout-text">3. compile</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                    <div class="fragment callout position-right"
+                         data-callout="span.hljs-attribute:contains('ng-click')"
+                         data-callout-offset-top="40"
+                         data-callout-offset-left="30">
+                        <div class="callout-arrow"></div>
+                        <div class="callout-text"><br>4. compile <br>5. link</div>
+                    </div>
+                    <div class="fragment callout position-bottomleft"
+                         data-callout="span.hljs-attribute:contains('ng-click')"
+                         data-callout-offset-left="-20">
+                        <div class="callout-text">6. link</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                    <div class="fragment callout position-bottomleft"
+                         data-callout="span.hljs-attribute:contains('ng-repeat')"
+                         data-callout-offset-left="-5">
+                        <div class="callout-text">7. link</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                    <div class="fragment callout position-bottomleft"
+                         data-callout="span.hljs-attribute:contains('ng-init')"
+                         data-callout-offset-left="-20">
+                        <div class="callout-text">8. link</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                </section>
+                
+                <section>
+                    <h3>Transclusion</h3>
+                    <div class="cols">
+                        <div class="col">
+                            <pre><code data-trim class="xml">
+<div>
+    <my-directive>
+        <p>Some Content</p>
+    </my-directive>
+</div>
+                            </code></pre>
+                        </div>
+                        <div class="col fragment">
+                            <pre><code data-trim class="javascript">
+angular.module('app')
+.directive('myDirective', function() {
+  return {
+    transclude: true,
+    template: '<div>' +
+      '<h4>Title</h4>' +
+      '&lt;div ng-transclude&gt;&lt/div&gt;' +
+      '</div>'
+  };
+});
+                            </code></pre>
+                        </div>
+                    </div>
+                    <div class="fragment callout position-circle-top"
+                         data-callout="span.hljs-title:contains('my-directive'):last"
+                         data-callout-offset-left="-10">
+                         <div class="callout-text">take content</div>
+                         <div class="callout-circle"></div>
+                    </div>
+                    <div class="fragment callout position-bottom"
+                         data-callout="span.hljs-string:contains('ng-transclude')">
+                         <div class="callout-arrow"></div>
+                         <div class="callout-text">insert here</div>
+                        
+                    </div>
+                </section>
+                
+                <section eval>
+                    <div class="cols">
+                        <div class="col auto-size wide">
+                            <pre><code contenteditable data-trim ng-non-bindable class="javascript">
+angular.module('app')
+.directive('awesomeButton', function() {
+  return {
+    scope: {
+      click: '&',
+      icon: '@'
+    },
+    transclude: true,
+    template: '&lt;button class="button" '+
+              '        ng-click="click()">'+
+              '&lt;i class="fa fa-{{icon}}">&lt;/i>'+
+              '&lt;span ng-transclude>&lt;/span>'+
+              '&lt;/button>'
+  };
+});
+                    </code></pre>
+                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
+<div>
+    &lt;awesome-button icon="bullhorn"
+                    click="my.alert()"&gt;
+        Click here!
+    &lt;/awesome-button&gt;
+</div>
+                            </code></pre>
+                        </div>
+                        <div class="col narrow">
+                            <div class="output" eval-output></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
+                    </div>
+                </section>
+                
+                <section>
+                    <pre class="pseudo"><code contenteditable data-trim ng-non-bindable class="javascript">
+angular.module('ng')
+.directive('ngInit', function($parse) {
+  return {
+    link: function (scope, element, attrs) {
+      $parse(attrs.ngInit)(scope);
+    }
+  };
+});
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <pre class="pseudo"><code contenteditable data-trim ng-non-bindable class="javascript">
+angular.module('ng')
+.directive('ngClick', function($parse) {
+  return {
+    link: function (scope, element, attrs) {
+      var func = $parse(attrs.ngClick);
+      element.on('click', function() {
+        scope.$apply(function () {
+          func(scope);
+        });
+      });
+    }
+  };
+});
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <pre class="pseudo"><code contenteditable data-trim ng-non-bindable class="javascript">
+angular.module('ng')
+.directive('ngSubmit', function($parse) {
+  return {
+    link: function (scope, element, attrs) {
+      var func = $parse(attrs.ngSubmit);
+      element.on('submit', function() {
+        scope.$apply(function () {
+          func(scope);
+        });
+      });
+    }
+  };
+});
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <pre class="pseudo"><code contenteditable data-trim ng-non-bindable class="javascript">
+angular.module('ng')
+.directive('ngRepeat', function($parse, $transclude) {
+  return {
+    transclude: 'element',
+    link: function (scope, element, attrs) {
+      var items = {};
+      var match = attrs.ngRepeat.match(/^\s*([\s\S]+?)  ...  \s*$/);
+      
+      $scope.$watch($parse(match.target), function (collection) {
+        // locate existing items, mark items not present anymore for removal
+        // remove leftover items
+        
+        for (index = 0; index < collection.length; index++) {
+          if (items[index].scope) { // update existing item scope
+            items[index].scope[match.identifier] = collection[index];
+          } else { // transclude a new element
+            $transclude(function(element, scope) {
+              scope[match.identifier] = collection[index];
+              scope.$index = index;
+              items[index] = {scope: scope};
+            });
+          }
+        }
+      });
+    }
+  };
+});
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <pre class="pseudo"><code contenteditable data-trim ng-non-bindable class="javascript">
+angular.module('ng')
+.directive('ngModel', function() {
+  return {
+    link: function (scope, element, attrs) {
+      var currentValue;
+      element.on('keyup', function() {
+        if ($(element).val() != currentValue) {
+          scope.$apply(function () {
+            scope[attrs.ngModel] = currentValue = $(element).val();
+          });
+        }
+      });
+      
+      $scope.$watch(attrs.ngModel, function (newValue) {
+        currentValue = newValue;
+        $(element).val(newValue);
+      });
+    }
+  };
+});
+                    </code></pre>
+                </section>
+
+                <section data-background="img/speedometer.jpg"
+                         data-state="show-photo-credits"
+                         data-photo-credits="Andy Castro <a href='https://www.flickr.com/photos/andycastro/2548898515/' target='_blank'>https://www.flickr.com/photos/andycastro/2548898515/</a>">
+                    <h1 class="backdrop">Performance</h1>
+                </section>
+                
+                <section>
+                    <h3>
+                        The <em>amount of data</em> on a Scope does not affect performance.
+                    </h3>
+                    <h3 class="fragment">
+                        The <strong>number of $watches</strong> and the <strong>frequency of $digest cycles</strong>
+                        <br>can slow things down.
+                    </h3>
+                </section>
+                
+                <section>
+                    <h3 class="backdrop">Game of Life</h3>
+                    <br><br>
+                    <div class="fragment">
+                        <h6 class="backdrop">Rules</h6><br>
+                        <ul class="small dashed">
+                            <li><span class="backdrop">under-population (neighbours &lt; 2)</span></li>
+                            <li><span class="backdrop">overcrowding (neighbours &gt; 3)</span></li>
+                            <li><span class="backdrop">reproduction (neighbours == 3)</span></li>
+                        </ul>
+                    </div>
+
+                    <div class="fragment" data-add-iframe="http://cvuorinen.github.io/reactive-life/app/#?pattern=Acorn&color2=hotpink&interval=600&autostart&noGrid&embedded"></div>
+                </section>
+                
+                <section>
+                    <h3 class="backdrop">50 rows x 80 cols = 4000 cells</h3>
+                    <div class="fragment" data-add-iframe="http://localhost/reactive-life/app/#?pattern=Acorn&color2=hotpink&rows=50&cols=80&interval=100&autostart&noGrid&embedded&counter"></div>
+                </section>
+                
+                <section>
+                    <h4>
+                        Don't call functions that do <br> 
+                        <em>resource extensive</em> or <br>
+                        <em>time consuming computations</em> <br>
+                        from <strong>watched expressions</strong>!
+                    </h4>
+                </section>
+                
+                <section>
+                    <pre><code class="xml" data-trim contenteditable ng-non-bindable>
+<!-- BAD -->
+<label>The Ultimate Question</label>
+<input ng-model="question">
+Answer: {{ deepThought.compute(question) }}
+                    </code></pre>
+                    <pre class="fragment"><code class="xml" data-trim contenteditable ng-non-bindable>
+<!-- LITTLE BETTER -->
+<label>The Ultimate Question</label>
+&lt;input ng-model="question"
+       ng-change="answer = deepThought.compute(question)"&gt;
+Answer: {{ answer }}
+                    </code></pre>
+                    <pre class="fragment"><code class="xml" data-trim contenteditable ng-non-bindable>
+<!-- GOOD -->
+<label>The Ultimate Question</label>
+&lt;input ng-model="question"
+       ng-change="answer = deepThought.compute(question)"
+       ng-model-options="{ debounce: 1000 }"&gt;
+Answer: {{ answer }}
+                    </code></pre>
+                </section>
+                
+                <section>
+                    <h2>OK, let's look at the <br> original example again</h2>
+                </section>
+                
+                <section eval>
+                    <div class="cols">
+                        <div class="col wide">
+                            <pre><code class="xml code" data-trim ng-non-bindable>
+<h4>Todo:</h4>
+<ul ng-init="list=[];">
+    &lt;li ng-repeat="todo in list"
+        ng-click="list.splice($index, 1)"&gt;
+        {{todo}}
+    &lt;/li&gt;
+</ul>
+<form ng-submit="list.push(todo); todo='';">
+    <input ng-model="todo" placeholder="Add">
+</form>
+                            </code></pre>
+                        </div>
+                        <div class="col narrow">
+                            <div class="output" eval-output></div>
+                        </div>
+                    </div>
+                    <div>
+                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
+                    </div>
+                    <div class="fragment callout position-top"
+                         data-callout="span.hljs-value:contains('list=[];')"
+                         data-callout-offset-left="-10">
+                        <div class="callout-text">expression</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                    <div class="fragment callout position-topright"
+                         data-callout="span.hljs-value:contains('todo in list')">
+                        <div class="callout-text">$watch</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                    <div class="fragment callout position-bottom"
+                         data-callout="span.hljs-value:contains('todo'):last">
+                        <div class="callout-arrow"></div>
+                        <div class="callout-text">$watch</div>
+                    </div>
+                    <div class="fragment callout position-bottomleft"
+                         data-callout="span.hljs-value:contains('list.push(todo)')"
+                         data-callout-offset-left="-100">
+                        <div class="callout-text">expression</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                    <div class="fragment callout position-right"
+                         data-callout="span.hljs-attribute:contains('ng-repeat')"
+                         data-callout-offset-top="50"
+                         data-callout-offset-left="-10">
+                        <div class="callout-arrow"></div>
+                        <div class="callout-text"><br>expression <br> + $watch</div>
+                    </div>
+                    <div class="fragment callout position-top"
+                         data-callout="span.hljs-value:contains('list.splice')"
+                         data-callout-offset-left="90">
+                        <div class="callout-text">&nbsp;expression</div>
+                        <div class="callout-arrow"></div>
+                    </div>
+                </section>
+                
+                <section>
+                    <h3>What about Services, <br> Factories & Providers?</h3>
+                </section>
+                
+                <section>
+                    <blockquote class="twitter-tweet" lang="en"><p lang="en" dir="ltr">A new tool’s been released to help you decide whether to use a service, provider, or factory in Angular.js. <a href="http://t.co/p3RTdH6GKA">pic.twitter.com/p3RTdH6GKA</a></p>&mdash; I Am Devloper (@iamdevloper) <a href="https://twitter.com/iamdevloper/status/605759422468603904">June 2, 2015</a></blockquote>
+<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
+                </section>
+                
+                <section>
+                    <div style="background: #EDEEF0; padding: 1.5em 12em; margin: 0 -10em; text-align: left;">
+                        <img src="img/byoa_logo.png" alt="" style="margin-top:1em;">
+                        <img src="img/books.jpg" width="250" alt="" style="float:right;">
+                        <div>by <b>Tero Parviainen</b></div>
+                        <div style="clear:both;"></div>
+                    </div>
+                    <br>
+                    <h4>Know Your AngularJS Inside Out</h4>
+                    <a href="http://teropa.info/build-your-own-angular" target="_blank">
+                        http://teropa.info/build-your-own-angular</a>
+                </section>
+                
+                <section>
+                    <h1>Questions?</h1>
+                    <div class="cols">
+                        <div class="col">
+                            <h3>Feedback</h3>
+                            <img src="img/qrcode.png" alt="" width="300" style="margin:-25px 0;">
+                            <p style="margin-top:-15px;">
+                                <a href="https://joind.in/14873" target="_blank">joind.in/14873</a>
+                            </p>
+                        </div>
+                        <div class="col"  style="text-align: left;">
+                            <br><br>
+                            <h5>
+                                <i class="fa fa-lg fa-twitter" style="width:1.5em;"></i>
+                                <a href="http://twitter.com/cvuorinen" target="_blank">@cvuorinen</a>
+                            </h5>
+                            <h5>
+                                <i class="fa fa-lg fa-github" style="width:1.5em;"></i>
+                                <a href="https://github.com/cvuorinen" target="_blank">cvuorinen</a>
+                            </h5>
+                            <h5>
+                                <i class="fa fa-lg fa-rss" style="width:1.5em;"></i>
+                                <a href="http://cvuorinen.net" target="_blank">cvuorinen.net</a>
+                            </h5>
+                        </div>
+                    </div>
+                    
+                </section>
+
+                <section style="text-align: left;">
+                    <h1>THE END</h1>
+                    <ul class="dashed">
+                        <li><a href="http://campus.codeschool.com/courses/shaping-up-with-angular-js/intro" target="_blank">Code
+                            School: Shaping up with Angular.js
+                        </a></li>
+                        <li><a href="https://egghead.io/technologies/angularjs" target="_blank">AngularJS
+                            Lessons @eggheadio
+                        </a></li>
+                        <li><a href="https://github.com/jmcunningham/AngularJS-Learning" target="_blank">AngularJS-Learning</a></li>
+                        <li><a href="https://github.com/johnpapa/angular-styleguide" target="_blank">Angular Style Guide</a></li>
+                        <li><a href="http://thomasstreet.com/blog/legacy/spreadsheet.html" target="_blank">Building a 
+                            Spreadsheet in 20 Minutes with Angular.js</a></li>
+                        <li><a href="https://angular.io/" target="_blank">Angular 2</a></li>
+                        <li><a href="https://github.com/cvuorinen/reactive-life" target="_blank">Reactive 
+                            Game of Life</a></li>
+                    </ul>
+                </section>
+
+            </div>
+
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.js"></script>
+
+        <!-- jQuery, AngularJS & my custom js -->
+        <script src="node_modules/jquery/dist/jquery.min.js"></script>
+        <script src="node_modules/angular/angular.min.js"></script>
+        <script src="js/app.js"></script>
+        <script src="js/custom-scripts.js"></script>
+
+        <script>
+
+            // Full list of configuration options available at:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: false,
+                progress: true,
+                history: true,
+                center: true,
+
+                transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+                // Optional reveal.js plugins
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    /*{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },*/
+                    { src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true },
+                    { src: 'plugin/notes/notes.js', async: true }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>

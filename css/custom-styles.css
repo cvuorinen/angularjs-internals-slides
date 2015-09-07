@@ -1,0 +1,350 @@
+@import url(../lib/font/fontsselectezy/stylesheet.css);
+@import url(../lib/font/Architects_Daughter/ArchitectsDaughter.css);
+@import url(../lib/font/Quicksand/Quicksand.css);
+@import url(../lib/font/Open_Sans/OpenSans.css);
+
+body {
+    background: #fff;
+}
+
+.reveal h2,
+.reveal h3,
+.reveal h4,
+.reveal h5,
+.reveal h6 {
+    text-transform: none;
+}
+
+.reveal h4 {
+    font-size: 1.3em;
+}
+
+.reveal p {
+    font-family: 'Quicksand', sans-serif;
+    line-height: 1.2;
+    letter-spacing: -0.08em;
+}
+
+.reveal .left {
+    text-align: left;
+}
+
+.reveal section img {
+    border: none;
+    box-shadow: none;
+}
+
+.reveal section em {
+    color: deepskyblue;
+    font-style: normal;
+}
+
+.reveal section strong {
+    color: deeppink;
+    font-weight: normal;
+}
+
+.reveal .slide-background.present {
+    opacity: .7;
+}
+
+.reveal ul.no-bullets li,
+.reveal ul.dashed li {
+    list-style-type: none;
+}
+.reveal ul.dashed li:before {
+    display: inline-block;
+    content: "\2013";
+    position: relative;
+    margin-left: -20px;
+    left: -10px;
+    width: 20px;
+}
+
+.reveal ul.small {
+    font-size: 70%;
+}
+
+.reveal .backdrop {
+    display: inline-block;
+    padding: 0 .3em;
+    margin: .2em -.3em;
+    background-color: rgba(255, 255, 255, .7);
+    border-radius: 2px;
+    line-height: 1.2;
+}
+.reveal .backdrop2 {
+    margin: .3em -20em;
+    background-color: rgba(255, 255, 255, .9);
+    border-radius: 2px;
+    line-height: 2.1;
+}
+
+.button {
+    display: inline-block;
+    vertical-align: middle;
+    text-align: center;
+    cursor: pointer;
+    padding: 8px 15px;
+    background: #69f;
+    color: #fff;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    border-radius: 4px;
+}
+
+.reveal .cols {
+    width: 100%;
+
+    display: flex;
+    flex-direction: row;
+}
+
+.reveal .col,
+.reveal .col2 {
+    flex: 1 50%;
+    margin: 0 10px;
+}
+.reveal .col.wide {
+    flex: 1.3;
+}
+.reveal .col.narrow {
+    flex: 0.7;
+}
+
+.reveal .col pre,
+.reveal .col2 pre {
+    width: 100%;
+    overflow: auto;
+}
+.reveal .col pre,
+.reveal .col pre code {
+    height: 350px;
+}
+.reveal .col2 pre,
+.reveal .col2 pre code {
+    height: 170px;
+}
+.reveal .col.auto-size pre,
+.reveal .col.auto-size pre code {
+    height: auto;
+}
+
+.reveal .output {
+    padding: 10px;
+}
+
+.reveal .col pre.output {
+    padding: 0 10px;
+    background: rgba(248, 248, 248, .7);
+}
+
+.reveal .output label,
+.reveal .output input,
+.reveal .output button {
+    font-size: 20px;
+    padding: 3px 5px;
+}
+.reveal .output input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+}
+.reveal .output button.button {
+    padding: 8px 15px;
+}
+
+.reveal .output li {
+    font-size: 26px;
+}
+
+.reveal section .output img {
+    margin: 5px 0;
+}
+
+.reveal .photo-credits {
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+    color: #999;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 99;
+    display: none;
+}
+.show-photo-credits .photo-credits {
+    display: block;
+}
+.reveal .photo-credits a {
+    color: #999;
+}
+
+iframe.iframe-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.reveal .twitter-tweet {
+    margin: 10px auto !important;
+}
+
+/**
+ * Quote marks around "quotes"
+ */
+.reveal blockquote {
+    position: relative;
+    padding-left: 65px;
+    text-align: left;
+    box-shadow: none;
+}
+
+.reveal blockquote:before,
+.reveal blockquote:after {
+    font-family: serif;
+    font-size: 300%;
+    line-height: 0.1em;
+    color: rgba(150, 150, 150, .5);
+}
+
+.reveal blockquote:before {
+    content: '\201C';
+    margin-left: -65px;
+    margin-right: 0.1em;
+    vertical-align: -0.4em;
+}
+
+.reveal blockquote:after {
+    content: '\201D';
+    margin-left: 0;
+    vertical-align: -0.6em;
+}
+
+.reveal blockquote cite {
+    position: absolute;
+    left: 65px;
+    bottom: 0;
+    margin-bottom: -2.2em;
+}
+
+.reveal blockquote cite:before {
+    content: '-- ';
+}
+
+/**
+ * Callout arrows & highlights
+ */
+.reveal .callout {
+    position: absolute;
+    display: inline-block;
+    font-size: 32px;
+    color: rgba(200, 0, 0, .8);
+    font-family: 'Architects Daughter', cursive;
+    text-shadow: 0 0 4px #fff, 0 0 4px #fff, 0 0 2px #fff, 0 0 2px #fff;
+    line-height: 1;
+}
+.reveal .callout.position-top .callout-text {
+    margin-left: 30px;
+    margin-bottom: -5px;
+}
+.reveal .callout.position-topright .callout-text {
+    margin-left: 15px;
+}
+.reveal .callout.position-left .callout-text {
+    margin-right: 10px;
+    display: inline-block;
+    vertical-align: middle;
+}
+.reveal .callout.position-right .callout-text {
+    margin-left: -19px;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: left;
+}
+.reveal .callout.position-bottom .callout-text {
+    margin-left: 50px;
+    margin-top: -10px;
+}
+.reveal .callout.position-bottomleft .callout-text {
+    margin-top: 20px;
+    margin-right: -25px;
+    display: inline-block;
+    vertical-align: middle;
+    text-align: right;
+}
+.reveal .callout .callout-arrow,
+.reveal .callout .callout-circle {
+    font-family: 'fontsselectezymedium';
+    font-size: 150px;
+    line-height: .3;
+    text-align: left;
+}
+.reveal .callout.position-left .callout-arrow,
+.reveal .callout.position-right .callout-arrow,
+.reveal .callout.position-bottomleft .callout-arrow {
+    display: inline-block;
+    vertical-align: middle;
+}
+.reveal .callout.position-bottomleft .callout-arrow {
+    margin-bottom: 40px;
+}
+.reveal .callout.position-top .callout-arrow:after {
+    content: 'H';
+}
+.reveal .callout.position-topright .callout-arrow:after {
+    content: 'I';
+}
+.reveal .callout.position-left .callout-arrow:after {
+    content: 'D';
+}
+.reveal .callout.position-right .callout-arrow:after {
+    content: 'E';
+}
+.reveal .callout.position-bottom .callout-arrow:after {
+    content: 'Y';
+}
+.reveal .callout.position-bottomleft .callout-arrow:after {
+    content: 'G';
+}
+.reveal .callout .callout-circle {
+    font-size: 250px;
+}
+.reveal .callout .callout-circle:after {
+    content: 'd';
+}
+.reveal .callout.position-circle-top .callout-text {
+    margin-top: 20px;
+    margin-bottom: -20px;
+    margin-left: 40px;
+}
+
+/**
+ * Override some code highlight styles
+ */
+.reveal pre {
+    width: 1000px;
+    border-radius: 3px;
+    box-shadow: none;
+    border: 2px solid #f0f0f0;
+}
+.reveal pre code {
+    padding: 0 10px;
+    max-height: 600px;
+    border-radius: 3px;
+    font-size: 20px !important;
+    line-height: 24px !important;
+    font-family: Consolas, monospace !important;
+    color: #333;
+}
+.hljs {
+    background: rgba(248, 248, 248, .7) !important;
+}
+.reveal pre.pseudo {
+    border: 3px solid rgba(200, 0, 50, .5);
+}
+.reveal pre.pseudo code {
+    padding: 15px 20px;
+}

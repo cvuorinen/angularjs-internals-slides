@@ -9,6 +9,17 @@ Reveal.addEventListener('slidechanged', function(event) {
         iframeElement = null;
     }
     
+    var iframeSrc = $(event.currentSlide).attr('data-add-iframe');
+    if (iframeSrc) {
+        iframeElement = $('<iframe />', {
+            name: 'iframe',
+            class: 'iframe-container',
+            frameborder: 0,
+            src: iframeSrc
+        });
+        iframeElement.appendTo('.reveal');
+    }
+    
     var photoCredits = $(event.currentSlide).attr('data-photo-credits');
     if (photoCredits) {
         $('.photo-credits').html('Photo credits: ' + photoCredits);

@@ -112,13 +112,13 @@
                             <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
 <h4>Todo:</h4>
 <ul ng-init="list=[];">
-    &lt;li ng-repeat="todo in list"
-        ng-click="list.splice($index, 1)"&gt;
-        {{todo}}
-    &lt;/li&gt;
+  &lt;li ng-repeat="todo in list"
+      ng-click="list.splice($index, 1)"&gt;
+    {{todo}}
+  &lt;/li&gt;
 </ul>
-<form ng-submit="list.push(todo); todo='';">
-    <input ng-model="todo" placeholder="Add">
+<form ng-submit="list.push(todo);todo='';">
+  <input ng-model="todo" placeholder="Add">
 </form>
                             </code></pre>
                         </div>
@@ -156,12 +156,8 @@
 $scope.$watch = function(watchFunc, listenerFunc) {
     this.$$watchers.push({
         watchFunc: watchFunc,
-        listenerFunc: listenerFunc,
-        lastValue: initWatchValue
+        listenerFunc: listenerFunc
     });
-    
-    // initialize watch with a "value" that's guaranteed to be unique
-    function initWatchValue() { }
 };
                     </code></pre>
                 </section>
@@ -212,7 +208,8 @@ $scope.$digest = function() {
 function Vehicle() {}
 Vehicle.prototype.speed = 4;
 Vehicle.prototype.go = function() {
-  return 'Vr' + 'o'.repeat(this.speed)
+  return 'Vr'
+       + 'o'.repeat(this.speed)
        + 'm!';
 };
 
@@ -220,7 +217,7 @@ function Truck() {}
 Truck.prototype = Vehicle.prototype;
 
 var scania = new Truck();
-scania.go();    // Vroooom!
+scania.go();  // Vroooom!
                             </code></pre>
                         </div>
                         <div class="col fragment">
@@ -234,10 +231,10 @@ Car.prototype = Object.create(
 Car.prototype.constructor = Car;
 
 var honda = new Car(6);
-honda.go();     // Vroooooom!
+honda.go();  // Vroooooom!
 
 var tesla = new Car(12);
-tesla.go();     // Vroooooooooooom!
+tesla.go();  // Vroooooooooooom!
                             </code></pre>
                         </div>
                     </div>
@@ -273,8 +270,8 @@ $scope.$new = function() {
 </label>
 <div ng-if="show">
   <img src="img/money.jpg"><br>
-  <img ng-if="showMore"
-       src="img/mo-money.jpg">
+  &lt;img ng-if="showMore"
+       src="img/mo-money.jpg"&gt;
 </div>
                             </code></pre>
                         </div>
@@ -285,9 +282,6 @@ $scope.$new = function() {
                     <div>
                         <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
                     </div>
-                    <aside class="notes">
-                        TODO: better way to visualize the scopes?
-                    </aside>
                 </section>
                 
                 <section data-transition="fade">
@@ -379,7 +373,7 @@ $parse = function(expr) {
                 </section>
                 
                 <section>
-                    <h3>DIY Spreadsheet</h3>
+                    <h3>DIY Spreadsheet using $parse</h3>
                     <a class="jsbin-embed" href="http://jsbin.com/fikesa/embed?html,css">JS Bin on jsbin.com</a><script src="http://static.jsbin.com/js/embed.min.js?3.34.2"></script>
                 </section>
                 
@@ -676,46 +670,21 @@ angular.module('ng')
                 <section>
                     <pre class="pseudo"><code contenteditable data-trim ng-non-bindable class="javascript">
 angular.module('ng')
-.directive('ngSubmit', function($parse) {
-  return {
-    link: function (scope, element, attrs) {
-      var func = $parse(attrs.ngSubmit);
-      element.on('submit', function() {
-        scope.$apply(function () {
-          func(scope);
-        });
-      });
-    }
-  };
-});
-                    </code></pre>
-                </section>
-                
-                <section>
-                    <pre class="pseudo"><code contenteditable data-trim ng-non-bindable class="javascript">
-angular.module('ng')
 .directive('ngRepeat', function($parse, $transclude) {
   return {
     transclude: 'element',
     link: function (scope, element, attrs) {
-      var items = {};
       var match = attrs.ngRepeat.match(/^\s*([\s\S]+?)  ...  \s*$/);
       
       $scope.$watch($parse(match.target), function (collection) {
         // locate existing items, mark items not present anymore for removal
+        
         // remove leftover items
         
-        for (index = 0; index < collection.length; index++) {
-          if (items[index].scope) { // update existing item scope
-            items[index].scope[match.identifier] = collection[index];
-          } else { // transclude a new element
-            $transclude(function(element, scope) {
-              scope[match.identifier] = collection[index];
-              scope.$index = index;
-              items[index] = {scope: scope};
-            });
-          }
-        }
+        // update existing items' scopes
+        
+        // create new elements with $transclude
+        // and keep a reference to their scopes
       });
     }
   };
@@ -811,13 +780,13 @@ Answer: {{ answer }}
                             <pre><code class="xml code" data-trim ng-non-bindable>
 <h4>Todo:</h4>
 <ul ng-init="list=[];">
-    &lt;li ng-repeat="todo in list"
-        ng-click="list.splice($index, 1)"&gt;
-        {{todo}}
-    &lt;/li&gt;
+  &lt;li ng-repeat="todo in list"
+      ng-click="list.splice($index, 1)"&gt;
+    {{todo}}
+  &lt;/li&gt;
 </ul>
-<form ng-submit="list.push(todo); todo='';">
-    <input ng-model="todo" placeholder="Add">
+<form ng-submit="list.push(todo);todo='';">
+  <input ng-model="todo" placeholder="Add">
 </form>
                             </code></pre>
                         </div>
@@ -885,6 +854,9 @@ Answer: {{ answer }}
                     <h4>Know Your AngularJS Inside Out</h4>
                     <a href="http://teropa.info/build-your-own-angular" target="_blank">
                         http://teropa.info/build-your-own-angular</a>
+                </section>
+                
+                <section data-background="img/angular2-is-coming.jpg">
                 </section>
                 
                 <section>

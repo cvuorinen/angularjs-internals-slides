@@ -45,7 +45,7 @@ body {
 }
 
 .reveal .slide-background.present {
-    opacity: .7;
+    opacity: .8;
 }
 
 .reveal ul.no-bullets li,
@@ -116,6 +116,7 @@ body {
 .reveal .col pre,
 .reveal .col2 pre {
     width: 100%;
+    margin-left: 0;
     overflow: auto;
 }
 .reveal .col pre,
@@ -325,7 +326,8 @@ iframe.iframe-container {
  * Override some code highlight styles
  */
 .reveal pre {
-    width: 1000px;
+    width: 1100px;
+    margin-left: -80px;
     border-radius: 3px;
     box-shadow: none;
     border: 2px solid #f0f0f0;
@@ -334,8 +336,8 @@ iframe.iframe-container {
     padding: 0 10px;
     max-height: 600px;
     border-radius: 3px;
-    font-size: 20px !important;
-    line-height: 24px !important;
+    font-size: 22px !important;
+    line-height: 26px !important;
     font-family: Consolas, monospace !important;
     color: #333;
 }

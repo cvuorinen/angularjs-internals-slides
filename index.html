@@ -396,63 +396,29 @@ $parse = function(expr) {
                 <section eval>
                     <div class="cols">
                         <div class="col auto-size wide">
-                            <pre><code contenteditable data-trim class="javascript">
+                            <pre><code contenteditable data-trim ng-non-bindable class="javascript">
 angular.module('app')
-.directive('greetings', function () {
+.directive('awesomeButton', function() {
   return {
-    link: function (scope, element, attrs) {
-      $(element).click(function () {
-        window.alert(scope.my.greeting);
-      });
-    }
+    scope: {
+      click: '&',
+      icon: '@'
+    },
+    transclude: true,
+    template: '&lt;button class="button" '+
+              '        ng-click="click()">'+
+              '&lt;i class="fa fa-{{icon}}">&lt;/i>'+
+              '&lt;span ng-transclude>&lt;/span>'+
+              '&lt;/button>'
   };
 });
                     </code></pre>
                             <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
 <div>
-    <input ng-model="my.greeting"><br>
-    &lt;button greetings&gt;
+    &lt;awesome-button icon="bullhorn"
+                    click="my.alert()"&gt;
         Click here!
-    &lt;/button&gt;
-</div>
-                            </code></pre>
-                        </div>
-                        <div class="col narrow">
-                            <div class="output" eval-output></div>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
-                    </div>
-                </section>
-                
-                <section eval>
-                    <div class="cols">
-                        <div class="col auto-size wide">
-                            <pre><code contenteditable data-trim ng-non-bindable class="javascript">
-angular.module('app')
-.directive('greetingButton', function () {
-  return {
-    scope: {
-      greeting: '='
-    },
-    template: '<button ng-click="click()">'
-            + '{{label}}</button>',
-    link: function (scope, element, attrs) {
-      scope.label = attrs.label;
-      scope.click = function () {
-        window.alert(scope.greeting);
-      };
-    }
-  };
-});
-                            </code></pre>
-                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
-<div>
-    <input ng-model="my.greeting"><br>
-    &lt;greeting-button label="Click here"
-                     greeting="my.greeting"&gt;
-    &lt;/greeting-button&gt;
+    &lt;/awesome-button&gt;
 </div>
                             </code></pre>
                         </div>
@@ -561,44 +527,6 @@ angular.module('app')
                          <div class="callout-arrow"></div>
                          <div class="callout-text">insert here</div>
                         
-                    </div>
-                </section>
-                
-                <section eval>
-                    <div class="cols">
-                        <div class="col auto-size wide">
-                            <pre><code contenteditable data-trim ng-non-bindable class="javascript">
-angular.module('app')
-.directive('awesomeButton', function() {
-  return {
-    scope: {
-      click: '&',
-      icon: '@'
-    },
-    transclude: true,
-    template: '&lt;button class="button" '+
-              '        ng-click="click()">'+
-              '&lt;i class="fa fa-{{icon}}">&lt;/i>'+
-              '&lt;span ng-transclude>&lt;/span>'+
-              '&lt;/button>'
-  };
-});
-                    </code></pre>
-                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
-<div>
-    &lt;awesome-button icon="bullhorn"
-                    click="my.alert()"&gt;
-        Click here!
-    &lt;/awesome-button&gt;
-</div>
-                            </code></pre>
-                        </div>
-                        <div class="col narrow">
-                            <div class="output" eval-output></div>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
                     </div>
                 </section>
                 
@@ -798,15 +726,6 @@ Answer: {{ answer }}
                         <div class="callout-text">&nbsp;expression</div>
                         <div class="callout-arrow"></div>
                     </div>
-                </section>
-                
-                <section>
-                    <h3>What about Services, <br> Factories & Providers?</h3>
-                </section>
-                
-                <section>
-                    <blockquote class="twitter-tweet" lang="en"><p lang="en" dir="ltr">A new tool’s been released to help you decide whether to use a service, provider, or factory in Angular.js. <a href="http://t.co/p3RTdH6GKA">pic.twitter.com/p3RTdH6GKA</a></p>&mdash; I Am Devloper (@iamdevloper) <a href="https://twitter.com/iamdevloper/status/605759422468603904">June 2, 2015</a></blockquote>
-<script async src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
                 </section>
                 
                 <section>

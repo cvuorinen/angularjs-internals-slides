@@ -340,15 +340,15 @@ angular.module('app')
                 <section>
                     <pre><code data-trim class="xml" ng-non-bindable contenteditable>
 <div ng-init="jsFrameworks = npm.search({tags: ['framework']})">
-    <div ng-if="(lastWeekCount = (jsFrameworks | since:lastWeek).length) > 10">
-        <h3>Holy smokes, Batman!</h3>
-        <p>New JS frameworks since last week: {{ lastWeekCount }}
-            <small>
-                +{{ (lastWeekCount / jsFrameworks.length * 100) | number:1 }}%
-            </small>
-        </p>
-        <p>Time to <button ng-click="startOver()">Clear the Decks!</button></p>
-    </div>
+  <div ng-if="(lastWeekCount = (jsFrameworks | since:lastWeek).length) > 10">
+    <h3>Holy smokes, Batman!</h3>
+    <p>New JS frameworks since last week: {{ lastWeekCount }}
+      <small>
+        +{{ (lastWeekCount / jsFrameworks.length * 100) | number:1 }}%
+      </small>
+    </p>
+    <p>Time to <button ng-click="startOver()">Clear the Decks!</button></p>
+  </div>
 </div>
                     </code></pre>
                 </section>

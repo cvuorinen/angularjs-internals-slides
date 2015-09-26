@@ -326,8 +326,8 @@ iframe.iframe-container {
  * Override some code highlight styles
  */
 .reveal pre {
-    width: 1100px;
-    margin-left: -80px;
+    width: 1000px;
+    margin-left: -20px;
     border-radius: 3px;
     box-shadow: none;
     border: 2px solid #f0f0f0;

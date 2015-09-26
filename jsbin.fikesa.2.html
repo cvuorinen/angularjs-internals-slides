@@ -10,10 +10,10 @@ Released under the MIT license: http://jsbin.mit-license.org
 <meta name="robots" content="noindex">
 <html>
 <head>
-<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.0/angular.min.js"></script>
+<script src="lib/js/angular.min.js"></script>
 <style id="jsbin-css">
 
-input, .output { 
+input, .output {
   position: absolute; top: 0;
   width: 50px; height: 18px;
   overflow: hidden; padding: 3px 0 0 8px;
@@ -55,7 +55,7 @@ angular.module('app', [])
   $scope.columns = ['A', 'B', 'C'];
   $scope.rows = [1, 2, 3, 4];
   $scope.cells = {};
-  
+
   $scope.compute = function(cell) {
     return $parse(
       process(''+$scope.cells[cell])

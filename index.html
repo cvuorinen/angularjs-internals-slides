@@ -398,36 +398,6 @@ $parse = function(expr) {
                         <div class="col auto-size wide">
                             <pre><code contenteditable data-trim class="javascript">
 angular.module('app')
-.directive('greetButton', function () {
-  return {
-    link: function (scope, element, attrs) {
-      $(element).click(function () {
-        window.alert('ohai!');
-      });
-    }
-  };
-});
-                    </code></pre>
-                            <pre><code class="xml code" contenteditable data-trim ng-non-bindable>
-<div>
-    &lt;button greet-button&gt;Click here!&lt;/button&gt;
-</div>
-                            </code></pre>
-                        </div>
-                        <div class="col narrow">
-                            <div class="output" eval-output></div>
-                        </div>
-                    </div>
-                    <div>
-                        <button class="button" ng-click="run()">&#9654;&nbsp; Run</button>
-                    </div>
-                </section>
-                
-                <section eval>
-                    <div class="cols">
-                        <div class="col auto-size wide">
-                            <pre><code contenteditable data-trim class="javascript">
-angular.module('app')
 .directive('greetings', function () {
   return {
     link: function (scope, element, attrs) {
@@ -651,10 +621,10 @@ angular.module('ng')
 .directive('ngClick', function($parse) {
   return {
     link: function (scope, element, attrs) {
-      var func = $parse(attrs.ngClick);
+      var expression = $parse(attrs.ngClick);
       element.on('click', function() {
         scope.$apply(function () {
-          func(scope);
+          expression(scope);
         });
       });
     }

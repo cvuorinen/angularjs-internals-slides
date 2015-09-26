@@ -571,7 +571,7 @@ angular.module('ng')
       var match = attrs.ngRepeat.match(/^\s*([\s\S]+?)  ...  \s*$/);
       
       $scope.$watch($parse(match.target), function (collection) {
-        // locate existing items, mark items not present anymore for removal
+        // locate existing items, mark items not present for removal
         
         // remove leftover items
         
